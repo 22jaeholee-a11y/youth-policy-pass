@@ -53,10 +53,14 @@ export default function PolicyCard({ policy, onClick }: PolicyCardProps) {
       </p>
       <div className="mt-3 flex flex-wrap gap-1.5">
         {ageTag && <span className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600">{ageTag}</span>}
-        {policy.earn_max && policy.earn_max !== "0" && (
+        {policy.earn_type === "0043001" ? (
+          <span className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600">소득 제한없음</span>
+        ) : policy.earn_max && policy.earn_max !== "0" ? (
           <span className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600">
             소득 {parseInt(policy.earn_max).toLocaleString()}만원 이하
           </span>
+        ) : (
+          <span className="rounded bg-yellow-50 px-2 py-0.5 text-xs text-yellow-700">소득 조건확인</span>
         )}
         {regionName && <span className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600">{regionName}</span>}
       </div>

@@ -92,9 +92,11 @@ export default function PolicyModal({ policy, onClose }: PolicyModalProps) {
           <div className="rounded-lg bg-gray-50 px-3 py-2">
             <p className="text-xs text-gray-500">소득</p>
             <p className="text-sm font-medium">
-              {policy.earn_max && policy.earn_max !== "0"
-                ? `${parseInt(policy.earn_max).toLocaleString()}만원↓`
-                : "제한없음"}
+              {policy.earn_type === "0043001"
+                ? "제한없음"
+                : policy.earn_max && policy.earn_max !== "0"
+                  ? `${parseInt(policy.earn_max).toLocaleString()}만원↓`
+                  : "조건확인"}
             </p>
           </div>
           <div className="rounded-lg bg-gray-50 px-3 py-2">
