@@ -18,13 +18,23 @@ export interface HousingNotice {
 /** LH API 개별 공고 항목 */
 export interface LhNoticeItem {
   RNUM: string;
-  UPP_AIS_TP_NM: string;
-  AIS_TP_CD_NM: string;
+  PAN_ID: string;
   PAN_NM: string;
+  UPP_AIS_TP_NM: string;
+  UPP_AIS_TP_CD: string;
+  AIS_TP_CD_NM: string;
+  AIS_TP_CD: string;
   CNP_CD_NM: string;
   PAN_SS: string;
   ALL_CNT: string;
   DTL_URL: string;
+  DTL_URL_MOB: string;
+  PAN_NT_ST_DT: string;
+  CLSG_DT: string;
+  PAN_DT: string;
+  CCR_CNNT_SYS_DS_CD: string;
+  SPL_INF_TP_CD: string;
+  [key: string]: string;
 }
 
 /** 결과 리스트에서 Policy와 HousingNotice를 구분하기 위한 통합 타입 */
