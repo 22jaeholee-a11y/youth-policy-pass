@@ -9,6 +9,7 @@ const CATEGORIES = [
   { label: "교육", value: "교육" },
   { label: "금융·복지·문화", value: "금융･복지･문화" },
   { label: "교육·직업훈련", value: "교육･직업훈련" },
+  { label: "공공주택", value: "공공주택" },
 ];
 
 function getCookie(name: string): string {
