@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { REGIONS } from "@/lib/regions";
 import { calculateIncomePercent, getMedianAnnualSalary } from "@/lib/income";
@@ -9,6 +9,7 @@ const EMPLOYMENT_OPTIONS = ["재직자", "자영업", "미취업", "무관"];
 
 export default function FilterForm() {
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
   const [step, setStep] = useState(1);
   const [age, setAge] = useState("");
   const [region, setRegion] = useState("");
@@ -33,13 +34,24 @@ export default function FilterForm() {
       const incomePercent = calculateIncomePercent(parseInt(annualSalary), householdSize);
       const params = { age, region, income: String(incomePercent), employment };
       document.cookie = `filterParams=${encodeURIComponent(JSON.stringify(params))}; path=/; max-age=3600`;
-      router.push("/results");
+      startTransition(() => {
+        router.push("/results");
+      });
     }
   };
 
   const handleBack = () => {
     if (step > 1) setStep(step - 1);
   };
+
+  if (isPending) {
+    return (
+      <div className="flex min-h-[40vh] flex-col items-center justify-center">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-green-500" />
+        <p className="mt-4 text-sm text-gray-500">맞춤 정책을 찾고 있어요...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-md">
