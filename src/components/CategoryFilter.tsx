@@ -11,38 +11,37 @@ const CATEGORIES = [
   { label: "교육·직업훈련", value: "교육･직업훈련" },
 ];
 
+function getCookie(name: string): string {
+  const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
+  return match ? decodeURIComponent(match[2]) : "";
+}
+
+function setCookie(name: string, value: string) {
+  document.cookie = `${name}=${encodeURIComponent(value)}; path=/; max-age=3600`;
+}
+
 export default function CategoryFilter() {
   const router = useRouter();
-  const searchParams = useSearchParams();
 
-  // category=주거,일자리 형태로 저장
-  const currentRaw = searchParams.get("category") ?? "";
+  const currentRaw = getCookie("categoryFilter");
   const selected = currentRaw ? currentRaw.split(",") : [];
 
   const handleClick = (value: string) => {
-    const params = new URLSearchParams(searchParams.toString());
     let next: string[];
 
     if (selected.includes(value)) {
-      // 이미 선택된 카테고리 → 해제
       next = selected.filter((v) => v !== value);
     } else {
-      // 새로 선택
       next = [...selected, value];
     }
 
-    if (next.length > 0) {
-      params.set("category", next.join(","));
-    } else {
-      params.delete("category");
-    }
-    router.push(`/results?${params.toString()}`);
+    setCookie("categoryFilter", next.join(","));
+    router.push("/results");
   };
 
   const handleReset = () => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.delete("category");
-    router.push(`/results?${params.toString()}`);
+    setCookie("categoryFilter", "");
+    router.push("/results");
   };
 
   return (

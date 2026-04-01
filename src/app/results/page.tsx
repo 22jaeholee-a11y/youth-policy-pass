@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { cookies } from "next/headers";
 import { createServerClient } from "@/lib/supabase-server";
 import { buildFilterQuery, parseFilterParams } from "@/lib/filter";
 import { Policy } from "@/types/policy";
@@ -6,13 +7,21 @@ import ResultSummary from "@/components/ResultSummary";
 import CategoryFilter from "@/components/CategoryFilter";
 import PolicyList from "@/components/PolicyList";
 
-interface ResultsPageProps {
-  searchParams: Promise<Record<string, string | undefined>>;
-}
+export default async function ResultsPage() {
+  // 쿠키에서 필터 파라미터 읽기
+  const cookieStore = await cookies();
+  const filterCookie = cookieStore.get("filterParams")?.value;
+  let filterSource: Record<string, string | undefined> = {};
 
-export default async function ResultsPage({ searchParams }: ResultsPageProps) {
-  const resolvedParams = await searchParams;
-  const params = parseFilterParams(resolvedParams);
+  if (filterCookie) {
+    try {
+      filterSource = JSON.parse(decodeURIComponent(filterCookie));
+    } catch {
+      filterSource = {};
+    }
+  }
+
+  const params = parseFilterParams(filterSource);
 
   if (!params) {
     return (
@@ -26,7 +35,10 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
     );
   }
 
-  const category = resolvedParams.category ?? "";
+  // 카테고리도 쿠키에서 읽기
+  const category = cookieStore.get("categoryFilter")?.value
+    ? decodeURIComponent(cookieStore.get("categoryFilter")!.value)
+    : "";
 
   const supabase = createServerClient();
   const query = buildFilterQuery(supabase, params, category || undefined);

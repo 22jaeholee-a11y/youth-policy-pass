@@ -31,9 +31,9 @@ export default function FilterForm() {
       setStep(step + 1);
     } else {
       const incomePercent = calculateIncomePercent(parseInt(annualSalary), householdSize);
-      router.push(
-        `/results?age=${age}&region=${region}&income=${incomePercent}&employment=${employment}`
-      );
+      const params = { age, region, income: String(incomePercent), employment };
+      document.cookie = `filterParams=${encodeURIComponent(JSON.stringify(params))}; path=/; max-age=3600`;
+      router.push("/results");
     }
   };
 
