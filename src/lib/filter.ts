@@ -69,3 +69,29 @@ export function parseFilterParams(
 
   return { age, region, income, employment };
 }
+
+export function buildHousingFilterQuery(
+  supabase: SupabaseClient,
+  params: FilterParams,
+  category?: string
+) {
+  let query = supabase.from("housing_notices").select("*");
+
+  // 지역 필터: 기존 시스템의 5자리 코드 앞 2자리로 매핑
+  const regionPrefix = params.region.substring(0, 2);
+  query = query.or(
+    [
+      `region_code.like.${regionPrefix}%`,
+      `region_code.eq.`,
+      `region_code.is.null`,
+    ].join(",")
+  );
+
+  // 공고중/접수중인 공고만 (접수마감 제외)
+  query = query.in("status", ["공고중", "접수중"]);
+
+  // 최신순 정렬
+  query = query.order("created_at", { ascending: false });
+
+  return query;
+}
