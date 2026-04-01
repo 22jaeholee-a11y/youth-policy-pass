@@ -1,14 +1,14 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
 import { createServerClient } from "@/lib/supabase-server";
-import { buildFilterQuery, parseFilterParams } from "@/lib/filter";
+import { buildFilterQuery, buildHousingFilterQuery, parseFilterParams } from "@/lib/filter";
 import { Policy } from "@/types/policy";
+import { HousingNotice, ResultItem } from "@/types/housing";
 import ResultSummary from "@/components/ResultSummary";
 import CategoryFilter from "@/components/CategoryFilter";
 import PolicyList from "@/components/PolicyList";
 
 export default async function ResultsPage() {
-  // 쿠키에서 필터 파라미터 읽기
   const cookieStore = await cookies();
   const filterCookie = cookieStore.get("filterParams")?.value;
   let filterSource: Record<string, string | undefined> = {};
@@ -35,31 +35,50 @@ export default async function ResultsPage() {
     );
   }
 
-  // 카테고리도 쿠키에서 읽기
   const category = cookieStore.get("categoryFilter")?.value
     ? decodeURIComponent(cookieStore.get("categoryFilter")!.value)
     : "";
 
   const supabase = createServerClient();
-  const query = buildFilterQuery(supabase, params, category || undefined);
-  const { data: policies, error } = await query;
+  const selectedCategories = category ? category.split(",") : [];
+  const showHousing = selectedCategories.length === 0 || selectedCategories.includes("공공주택");
+  const showPolicies = selectedCategories.length === 0 || selectedCategories.some((c) => c !== "공공주택");
 
-  if (error) {
-    return (
-      <div className="py-16 text-center">
-        <h1 className="text-xl font-bold text-gray-900">잠시 후 다시 시도해주세요</h1>
-        <p className="mt-2 text-sm text-gray-500">데이터를 불러오는 중 오류가 발생했습니다</p>
-      </div>
+  const policyCategories = selectedCategories.filter((c) => c !== "공공주택");
+
+  const items: ResultItem[] = [];
+
+  if (showPolicies) {
+    const policyQuery = buildFilterQuery(
+      supabase,
+      params,
+      policyCategories.length > 0 ? policyCategories.join(",") : undefined
     );
+    const { data: policies } = await policyQuery;
+    if (policies) {
+      for (const p of policies as Policy[]) {
+        items.push({ type: "policy", data: p });
+      }
+    }
   }
 
-  const policyList = (policies as Policy[]) ?? [];
+  if (showHousing) {
+    const housingQuery = buildHousingFilterQuery(supabase, params);
+    const { data: notices } = await housingQuery;
+    if (notices) {
+      for (const n of notices as HousingNotice[]) {
+        items.push({ type: "housing", data: n });
+      }
+    }
+  }
+
+  const totalCount = items.length;
 
   return (
     <div>
-      <ResultSummary count={policyList.length} params={params} />
+      <ResultSummary count={totalCount} params={params} />
       <CategoryFilter />
-      <PolicyList policies={policyList} />
+      <PolicyList items={items} />
       <div className="mt-8 text-center">
         <Link href="/filter"
           className="inline-block rounded-xl border border-gray-300 px-6 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50">
