@@ -34,3 +34,16 @@ export function getRegionCode(name: string): string | null {
   const region = REGIONS.find((r) => r.name === name);
   return region?.code ?? null;
 }
+
+/** LH API 2자리 지역코드 → 기존 5자리 코드 변환 */
+export function regionCodeTo5Digit(code2: string): string | null {
+  if (!code2) return null;
+  const region = REGIONS.find((r) => r.code.substring(0, 2) === code2);
+  return region?.code ?? null;
+}
+
+/** 기존 5자리 지역코드 → 2자리 코드 변환 */
+export function regionCodeTo2Digit(code5: string): string {
+  if (!code5) return "";
+  return code5.substring(0, 2);
+}
