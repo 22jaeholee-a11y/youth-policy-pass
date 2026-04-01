@@ -44,6 +44,17 @@ describe("mapLhToHousingNotice", () => {
     expect(result.region_code).toBe("41000");
   });
 
+  test("경상북도, 충청남도 등 도 단위 매핑", () => {
+    expect(mapLhToHousingNotice({ ...mockLhItem, CNP_CD_NM: "경상북도" }).region_code).toBe("47000");
+    expect(mapLhToHousingNotice({ ...mockLhItem, CNP_CD_NM: "충청남도" }).region_code).toBe("44000");
+    expect(mapLhToHousingNotice({ ...mockLhItem, CNP_CD_NM: "전라남도" }).region_code).toBe("46000");
+  });
+
+  test("서울특별시 외 같은 패턴도 매핑됨", () => {
+    expect(mapLhToHousingNotice({ ...mockLhItem, CNP_CD_NM: "서울특별시 외" }).region_code).toBe("11000");
+    expect(mapLhToHousingNotice({ ...mockLhItem, CNP_CD_NM: "부산광역시 외" }).region_code).toBe("26000");
+  });
+
   test("전국은 빈 region_code", () => {
     const nationwide = { ...mockLhItem, CNP_CD_NM: "전국" };
     const result = mapLhToHousingNotice(nationwide);
