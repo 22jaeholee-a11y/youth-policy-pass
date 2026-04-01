@@ -62,7 +62,7 @@ export function mapLhToHousingNotice(item: LhNoticeItem) {
     region_code: regionCode ?? "",
     status: item.PAN_SS ?? "",
     detail_url: item.DTL_URL ?? "",
-    raw_data: item as Record<string, unknown>,
+    raw_data: item as unknown as Record<string, unknown>,
     synced_at: new Date().toISOString(),
   };
 }
